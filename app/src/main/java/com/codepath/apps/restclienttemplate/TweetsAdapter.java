@@ -35,6 +35,8 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         //wrap the view inside of the other view holder
         return new ViewHolder(view);
     }
+
+
     //Bind values based on the position of the element
     @NonNull
     @Override
@@ -74,6 +76,16 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             Glide.with(context).load(tweet.user.profileImageURL).into(ivProfileImage);
             tvTimestamp.setText(Tweet.getRelativeTimeAgo(tweet.createdAt));
 
+        }
+        //Clean all elements of the recycler
+        public void clear() {
+            tweets.clear();
+            notifyDataSetChanged();
+        }
+        // Add a list of items -- change to type used
+        public void addAll(List<Tweet> list) {
+            tweets.addAll(list);
+            notifyDataSetChanged();
         }
     }
 }

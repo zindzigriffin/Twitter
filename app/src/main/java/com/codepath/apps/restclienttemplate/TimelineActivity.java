@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import okhttp3.Headers;
 
 public class TimelineActivity extends AppCompatActivity {
+    private SwipeRefreshLayout swipeContainer;
 
     public static final String TAG = "TimelineActivity";
     private final int REQUEST_CODE = 20;
@@ -47,6 +49,23 @@ public class TimelineActivity extends AppCompatActivity {
         Log.d("TimelineActivity", "In timeline activity");
         // Making the API request to get the home timeline
         client = TwitterApp.getRestClient(this);
+        //Lookup the swipe container view
+        swipeContainer = (SwipeRefreshLayout)  findViewById(R.id.swipeContainer);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Your code to refresh the list here.
+                populateHomeTimeline();
+                // Make sure you call swipeContainer.setRefreshing(false)
+                //swipeContainer.setRefreshing(false);
+                // once the network request has completed successfully.
+
+            }
+        });
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
         //Find the recycler view
         rvTweets = findViewById(R.id.rvTweets);
         logoutButton = findViewById(R.id.logoutButton);
@@ -65,6 +84,7 @@ public class TimelineActivity extends AppCompatActivity {
                 onLogoutButton();
             }
         });
+
 
     }
 
@@ -116,8 +136,10 @@ public class TimelineActivity extends AppCompatActivity {
                 Log.i(TAG, "onSucesss!" +json.toString());
                 JSONArray jsonArray = json.jsonArray;
                 try {
+                    tweets.clear();
                     tweets.addAll(Tweet.fromJsonArray(jsonArray));
                     adapter.notifyDataSetChanged();
+                    swipeContainer.setRefreshing(false);
                 } catch (JSONException e) {
                     Log.e(TAG, "json exception", e);
                     e.printStackTrace();
