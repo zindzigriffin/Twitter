@@ -25,6 +25,7 @@ public class TwitterApp extends Application {
         super.onCreate();
         // when upgrading versions, kill the original tables by using
 		// fallbackToDestructiveMigration()
+        //Creates a databaseBuilder
         myDatabase = Room.databaseBuilder(this, MyDatabase.class,
                 MyDatabase.NAME).fallbackToDestructiveMigration().build();
 

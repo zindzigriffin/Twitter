@@ -32,10 +32,11 @@ import okhttp3.Headers;
 
 public class TimelineActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeContainer;
-
+    //set the TAG to the current file name
     public static final String TAG = "TimelineActivity";
+    //set the request code to 20
     private final int REQUEST_CODE = 20;
-
+    //Creates instance variables of the items being used in this file
     TwitterClient  client;
     RecyclerView rvTweets;
     List<Tweet> tweets;
@@ -44,38 +45,44 @@ public class TimelineActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+        //Set the activity content from a layout resourc.
         setContentView(R.layout.activity_timeline);
         Log.d("TimelineActivity", "In timeline activity");
         // Making the API request to get the home timeline
         client = TwitterApp.getRestClient(this);
-        //Lookup the swipe container view
-        swipeContainer = (SwipeRefreshLayout)  findViewById(R.id.swipeContainer);
+        //set swipecontainer to swipe referesh layout which is used whenever the user can refresh the contents of a view using the vertical swipe gesture
+        //findviewbyid finds a view that was identified by the xml attribute
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        //set the listener to be notified when a refresh is triggered via the swipe gesture.
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                // Your code to refresh the list here.
+                //Calls the populateHomeTimeLine method
                 populateHomeTimeline();
-                // Make sure you call swipeContainer.setRefreshing(false)
-                //swipeContainer.setRefreshing(false);
-                // once the network request has completed successfully.
+
 
             }
         });
+        //Set the color resources used in the progress animation from color resources.
         swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
         //Find the recycler view
         rvTweets = findViewById(R.id.rvTweets);
+        //Find the logoutButton
         logoutButton = findViewById(R.id.logoutButton);
-        //adapter = new TweetsAdapter(this, tweets);
         //Initialize the list of tweets and adapter
         tweets = new ArrayList<>();
+        //Set the adapter
         adapter = new TweetsAdapter(this, tweets);
         //Recycler view setup: layout manager and the adapter
         rvTweets.setLayoutManager(new LinearLayoutManager(this));
+        //Set a new adapter to provide views on demand. When the adapter is changed all existing views are put back into the pool
         rvTweets.setAdapter(adapter);
+        //Calls populateHomeTimeLine
         populateHomeTimeline();
         //when the logout button is clicked logout
         logoutButton.setOnClickListener(new View.OnClickListener() {
@@ -104,12 +111,15 @@ public class TimelineActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull @NotNull MenuItem item) {
+        //if the menu item that was selected is the same as the id compose
         if(item.getItemId() == R.id.compose ) {
             //Navigate to the compose activity
             Intent intent = new Intent(this, ComposeActivity.class);
+            //startActivityForResult modifies the behavior of the intent to allow results to be delivered to fragments.
             startActivityForResult(intent, REQUEST_CODE);
             return true;
         }
+        //Called whenever an item in the options menu is selected
         return super.onOptionsItemSelected(item);
     }
 
@@ -120,25 +130,31 @@ public class TimelineActivity extends AppCompatActivity {
             //Get data from the intent (tweet)
             Tweet tweet = Parcels.unwrap(data.getParcelableExtra("tweet"));
             //Update the recycler view with the tweet
-            //Modify data source of tweets
+            //Modify data source of tweets by inserting the specified element, tweet at the specified index 0.
             tweets.add(0, tweet);
-            //Update the adpater
+            //Notify the adapter that an item has been inserted at index 0
             adapter.notifyItemInserted(0);
+            //Starts a smooth scroll to the first position of the adapter
             rvTweets.smoothScrollToPosition(0);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void populateHomeTimeline() {
+        //Make an API request to get the hometimeline
         client.getHomeTimeline(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
                 Log.i(TAG, "onSucesss!" +json.toString());
                 JSONArray jsonArray = json.jsonArray;
                 try {
+                    //Removes all of the elements from this last
                     tweets.clear();
+                    //Appends all of the items from the Tweet.jsonArray to the list of tweets
                     tweets.addAll(Tweet.fromJsonArray(jsonArray));
+                    //Notify the adapter that the data set has changed
                     adapter.notifyDataSetChanged();
+                    //Notify the swipeContainer widget that the refresh state has changed.
                     swipeContainer.setRefreshing(false);
                 } catch (JSONException e) {
                     Log.e(TAG, "json exception", e);

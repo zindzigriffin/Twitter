@@ -38,12 +38,15 @@ public class ComposeActivity extends AppCompatActivity {
         btnTweet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //tweetContent string where we get the text as a string
                 String tweetContent = etCompose.getText().toString();
                 if(tweetContent.isEmpty()){
+                    //if the tweet is empty then put a toast that sorry yout tweet cannot be empty
                     Toast.makeText(ComposeActivity.this,"Sorry your tweet cannot be empty", Toast.LENGTH_LONG).show();
                     return;
                 }
                 if(tweetContent.length() > MAX_TWEET_LENGTH){
+                    //if the tweetcontent exceeds the maximum length then say your tweet is too long
                     Toast.makeText(ComposeActivity.this, "Sorry your tweet is too long", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -63,7 +66,7 @@ public class ComposeActivity extends AppCompatActivity {
                             intent.putExtra("tweet", Parcels.wrap(tweet));
                             // set result code and bundle data for response
                             setResult(RESULT_OK, intent);
-                            //closes the activitu, pass data to parent
+                            //closes the activity, pass data to parent
                             finish();
                         } catch (JSONException e) {
                             e.printStackTrace();

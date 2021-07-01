@@ -33,6 +33,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
     @NotNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
+        //Instantiates a layout XML file and inflate a new view hierarchy from the specified xml resource.
         View view = LayoutInflater.from(context).inflate(R.layout.item_tweet,parent, false);
         //wrap the view inside of the other view holder
         return new ViewHolder(view);
@@ -57,6 +58,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
+        //Create the instance variables
         ImageView ivProfileImage;
         TextView tvBody;
         TextView tvScreenName;
@@ -74,16 +76,24 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         }
         //get this piece of information and bind it to
         public void bind(Tweet tweet) {
+            //Sets the text to be displayed
             tvBody.setText(tweet.body);
+            //Sets the text to be displayed
             tvScreenName.setText(tweet.user.screenName);
+            //Using glide to load the users image profile
             Glide.with(context).load(tweet.user.profileImageURL).into(ivProfileImage);
+            //Sets the text for the time stamp that which they got the relative time ago method
             tvTimestamp.setText(Tweet.getRelativeTimeAgo(tweet.createdAt));
             Log.d(TAG, "bind: " + tweet.mediaURL);
+            //mediaurl is not
             if (tweet.mediaURL != ""){
+                //set the image view setVisbility
                 ivImage.setVisibility(View.VISIBLE);
+                //Using glide to load the mediaURL
                 Glide.with(context).load(tweet.mediaURL).into(ivImage);
             }
             else{
+                //if not the setVisibility
                 ivImage.setVisibility(View.GONE);
             }
 
