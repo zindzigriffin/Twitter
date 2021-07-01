@@ -2,6 +2,7 @@ package com.codepath.apps.restclienttemplate;
 
 import android.content.Context;
 import android.media.Image;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder>{
+    private static final String TAG = "TweetsAdapter";
     Context context;
     List<Tweet> tweets;
     //Pass in the context and list of tweets
@@ -59,7 +61,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         TextView tvBody;
         TextView tvScreenName;
         TextView tvTimestamp;
-
+        ImageView ivImage;
         public ViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
             //get references to each instance variable using findviewbyID
@@ -68,6 +70,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             tvBody = itemView.findViewById(R.id.tvBody);
             tvScreenName = itemView.findViewById(R.id.tvScreenName);
             tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
+            ivImage = itemView.findViewById(R.id.ivImage);
         }
         //get this piece of information and bind it to
         public void bind(Tweet tweet) {
@@ -75,6 +78,14 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             tvScreenName.setText(tweet.user.screenName);
             Glide.with(context).load(tweet.user.profileImageURL).into(ivProfileImage);
             tvTimestamp.setText(Tweet.getRelativeTimeAgo(tweet.createdAt));
+            Log.d(TAG, "bind: " + tweet.mediaURL);
+            if (tweet.mediaURL != ""){
+                ivImage.setVisibility(View.VISIBLE);
+                Glide.with(context).load(tweet.mediaURL).into(ivImage);
+            }
+            else{
+                ivImage.setVisibility(View.GONE);
+            }
 
         }
         //Clean all elements of the recycler

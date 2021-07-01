@@ -1,6 +1,7 @@
 package com.codepath.apps.restclienttemplate.models;
 
 import android.text.format.DateUtils;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,6 +19,8 @@ public class Tweet {
     public String body;
     public String createdAt;
     public User user;
+    public String mediaURL;
+    // public List<String> mediaURL;
 
     //empty constructor needed by the Parceler library
     public Tweet(){}
@@ -30,6 +33,24 @@ public class Tweet {
         tweet.body = jsonObject.getString("text");
         tweet.createdAt = jsonObject.getString("created_at");
         tweet.user = User.fromJson(jsonObject.getJSONObject("user"));
+//        if(jsonObject.has("extended_entities")){
+//            JSONArray mediaArray = jsonObject.getJSONObject("extended_entities").getJSONArray("media");
+//            for(int i = 0; i< mediaArray.length(); i++){
+//                //for every object inside the array we grab the string with the key media_url_https
+//                tweet.mediaURL.add(mediaArray.getJSONObject(i).getString("media_url_https"));
+//            }
+//        } else {
+//            tweet.mediaURL.add("");
+//        }
+        if (!jsonObject.isNull("extended_entities")) {
+            JSONObject entities = jsonObject.getJSONObject("extended_entities");
+            JSONArray jsonArray = entities.getJSONArray("media");
+            JSONObject media = jsonArray.getJSONObject(0);
+            tweet.mediaURL = String.format("%s:large", media.getString("media_url_https"));
+        } else {
+            tweet.mediaURL = "";
+        }
+        Log.i("Tweet Media: ", tweet.mediaURL);
         return tweet;
 
     }
