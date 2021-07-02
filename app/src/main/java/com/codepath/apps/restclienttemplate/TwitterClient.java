@@ -55,6 +55,17 @@ public class TwitterClient extends OAuthBaseClient {
 		//Define the request method and make a call to the client
 		client.get(apiUrl, params, handler);
 	}
+	public void next25(long max_ID, JsonHttpResponseHandler handler) {
+
+		//endpoint we are trying to retrieve data from
+		String apiUrl = getApiUrl("statuses/home_timeline.json");
+		// Can specify query string params directly or through RequestParams.
+		RequestParams params = new RequestParams();
+		params.put("count", 25);
+		params.put("max_id", max_ID);
+		//Define the request method and make a call to the client
+		client.get(apiUrl, params, handler);
+	}
 	public void publishTweet(String tweetContent, JsonHttpResponseHandler handler) {
 
 		//Define the endpoint URL with getApiUrl and pass a relative path to the endpoint

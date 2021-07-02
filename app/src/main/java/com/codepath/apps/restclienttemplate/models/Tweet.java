@@ -21,7 +21,7 @@ public class Tweet {
     public String createdAt;
     public User user;
     public String mediaURL;
-
+    public long id;
     //empty constructor needed by the Parceler library
     public Tweet(){}
     //Turn a json object which the tweet represents into a java tweet object
@@ -33,6 +33,8 @@ public class Tweet {
         tweet.body = jsonObject.getString("text");
         tweet.createdAt = jsonObject.getString("created_at");
         tweet.user = User.fromJson(jsonObject.getJSONObject("user"));
+        //gets the id object
+        tweet.id = jsonObject.getLong("id");
         //if statement to check to see if the jsonObject is not null at the key "extended_entities"
         if (!jsonObject.isNull("extended_entities")) {
             //Given the key "extended entities", this line retrieves the associated object

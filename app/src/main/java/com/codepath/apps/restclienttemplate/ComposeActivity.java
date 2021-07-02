@@ -77,7 +77,8 @@ public class ComposeActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                        Log.e(TAG, "onFailure to publish tweet",throwable);
+                        Toast.makeText(ComposeActivity.this, response, Toast.LENGTH_LONG).show();
+                        //Log.e(TAG, "onFailure to publish tweet",throwable);
 
                     }
                 });

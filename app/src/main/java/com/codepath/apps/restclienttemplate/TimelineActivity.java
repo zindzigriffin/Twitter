@@ -31,6 +31,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import okhttp3.Headers;
 
 public class TimelineActivity extends AppCompatActivity {
+    // Store a member variable for the listener
+    private EndlessRecyclerViewScrollListener scrollListener;
     private SwipeRefreshLayout swipeContainer;
     //set the TAG to the current file name
     public static final String TAG = "TimelineActivity";
@@ -40,16 +42,20 @@ public class TimelineActivity extends AppCompatActivity {
     TwitterClient  client;
     RecyclerView rvTweets;
     List<Tweet> tweets;
+    RecyclerView recyclerViewContacts;
     TweetsAdapter adapter;
     Button logoutButton;
+    long max_ID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+
         super.onCreate(savedInstanceState);
-        //Set the activity content from a layout resourc.
+        //Set the activity content from a layout resource.
         setContentView(R.layout.activity_timeline);
         Log.d("TimelineActivity", "In timeline activity");
+        RecyclerView rvItems = (RecyclerView) findViewById(R.id.rvTweets);
         // Making the API request to get the home timeline
         client = TwitterApp.getRestClient(this);
         //set swipecontainer to swipe referesh layout which is used whenever the user can refresh the contents of a view using the vertical swipe gesture
@@ -70,6 +76,7 @@ public class TimelineActivity extends AppCompatActivity {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
+
         //Find the recycler view
         rvTweets = findViewById(R.id.rvTweets);
         //Find the logoutButton
@@ -78,8 +85,9 @@ public class TimelineActivity extends AppCompatActivity {
         tweets = new ArrayList<>();
         //Set the adapter
         adapter = new TweetsAdapter(this, tweets);
+        LinearLayoutManager linearLayoutManager = (new LinearLayoutManager(this));
         //Recycler view setup: layout manager and the adapter
-        rvTweets.setLayoutManager(new LinearLayoutManager(this));
+        rvTweets.setLayoutManager(linearLayoutManager);
         //Set a new adapter to provide views on demand. When the adapter is changed all existing views are put back into the pool
         rvTweets.setAdapter(adapter);
         //Calls populateHomeTimeLine
@@ -91,7 +99,46 @@ public class TimelineActivity extends AppCompatActivity {
                 onLogoutButton();
             }
         });
+        // Retain an instance so that you can call `resetState()` for fresh searches
+        scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to the bottom of the list
+                loadNextDataFromApi(page);
+            }
+        };
+        // Adds the scroll listener to RecyclerView
+        rvTweets.addOnScrollListener(scrollListener);
+    }
+    //Method to load data every 25 tweets from the API to allow for endless scrolling
+    private void loadNextDataFromApi(int page) {
+        client.next25(max_ID,new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Headers headers, JSON json) {
+                Log.i(TAG,  "25");
+                JSONArray jsonArray = json.jsonArray;
+                try {
+                    //Appends all of the items from the Tweet.jsonArray to the list of tweets
+                    tweets.addAll(Tweet.fromJsonArray(jsonArray));
+                    //Notify the adapter that the data set has changed
+                    adapter.notifyDataSetChanged();
+                    max_ID = tweets.get(tweets.size()-1).id;
+                    //Notify the swipeContainer widget that the refresh state has changed.
+                    swipeContainer.setRefreshing(false);
+                } catch (JSONException e) {
+                    Log.e(TAG, "json exception", e);
+                    e.printStackTrace();
+                }
 
+            }
+
+            @Override
+            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                Log.e(TAG, "onFailure!" + response, throwable);
+
+            }
+        });
 
     }
 
@@ -154,6 +201,8 @@ public class TimelineActivity extends AppCompatActivity {
                     tweets.addAll(Tweet.fromJsonArray(jsonArray));
                     //Notify the adapter that the data set has changed
                     adapter.notifyDataSetChanged();
+                    //getting the last tweet and setting it as the max_id
+                    max_ID = tweets.get(tweets.size()-1).id;
                     //Notify the swipeContainer widget that the refresh state has changed.
                     swipeContainer.setRefreshing(false);
                 } catch (JSONException e) {
