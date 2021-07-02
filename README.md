@@ -46,7 +46,7 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src= 'https://github.com/zindzigriffin/Twitter/blob/main/TWITTER4%20(3).gif' width='' alt='Video Walkthrough' />
+<img src= 'https://github.com/zindzigriffin/Twitter/blob/main/twitter12.gif' width='' alt='Video Walkthrough' />
 
 GIF created with [Kap](https://getkap.co/).
 
